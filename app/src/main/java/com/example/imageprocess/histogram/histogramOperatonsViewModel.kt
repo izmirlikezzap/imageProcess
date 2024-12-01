@@ -144,7 +144,8 @@ class HistogramOperationsViewModel : ViewModel() {
             when {
                 i >= whiteLevel -> 255
                 i <= blackLevel -> 0
-                else -> i  // Keep the original intensity for values in between
+                else -> ((i - blackLevel) * 255) / (whiteLevel - blackLevel)
+                // Keep the original intensity for values in between
             }
         }
 

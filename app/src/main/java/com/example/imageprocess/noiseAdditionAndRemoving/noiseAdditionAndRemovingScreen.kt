@@ -1,43 +1,23 @@
-package com.example.imageprocess.noiseFiltering
+package com.example.imageprocess.noiseAdditionAndRemoving
+
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DrawerState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.ModalDrawer
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.rememberModalBottomSheetState
-
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,48 +28,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.imageprocess.BottomNavigationBar
+import com.example.imageprocess.LineSlider
 import com.example.imageprocess.R
-import com.example.imageprocess.drawer.ModalDrawerHomeScreen
-import com.example.imageprocess.viewModel.ImageProcessViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Switch
-
 import com.example.imageprocess.colorConversions.ImageSection
 import com.example.imageprocess.colorConversions.SheetContent
-import com.example.imageprocess.viewModel.NoiseFilteringViewModel
+import com.example.imageprocess.drawer.ModalDrawerHomeScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "DefaultLocale")
 @Composable
-fun NoiseFilteringScreen(
+fun NoiseAdditionAndRemoving(
     navController: NavHostController,
     drawerState: DrawerState,
     coroutineScope: CoroutineScope,
-    imageProcessViewModel: ImageProcessViewModel = viewModel(),
-    noiseFilteringViewModel : NoiseFilteringViewModel = viewModel()
+    noiseAddtionAndRemovingViewModel: NoiseAddtionAndRemovingViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val filterTypes = listOf("Min", "Max", "Average", "Median")
+    val filterTypes = listOf("Salt Noise", "Pepper Noise", "Gaussian Noise", "Uniform Noise")
     var selectedFilterType by remember { mutableStateOf(filterTypes[0]) }
-
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var transformedImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var sheetImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var sheetImageLabel by remember { mutableStateOf("") }
 
-    val filterTypes2 =
-        listOf("Laplacian", "Sobel Gradient", "Smoothing", "Masking", "Sharpening", "Power-Law")
+    val filterTypes2 = listOf(
+        "Motion Deblurring",
+        "Median Filter",
+        "Gaussian Filter",
+        "Min Filter",
+        "Max Filter",
+        "Average Filter",
+
+    )
     var selectedFilterType2 by remember { mutableStateOf(filterTypes2[0]) }
 
     var isSwitchChecked by remember { mutableStateOf(false) }
-
+    var noiseLevel by remember { mutableFloatStateOf(.4f) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -103,9 +81,7 @@ fun NoiseFilteringScreen(
         }
     )
 
-    val bottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     ModalDrawer(
         drawerState = drawerState,
@@ -169,7 +145,7 @@ fun NoiseFilteringScreen(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Görüntü Bölümü
+                    // Image Section
                     item {
                         ImageSection(
                             selectedImageUri = selectedImageUri,
@@ -198,7 +174,7 @@ fun NoiseFilteringScreen(
 
                     item { Spacer(modifier = Modifier.height(20.dp)) }
 
-                    // Filtre Seçimi ve Uygulama Bölümü
+                    // Filter Selection and Application Section
                     item {
                         Column(
                             modifier = Modifier
@@ -206,16 +182,18 @@ fun NoiseFilteringScreen(
                                 .padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-
+                            // Switch for Noise Addition/Removal
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Select Filter Type",
+                                    text = if (isSwitchChecked) "Noise Addition" else "Remove Noise",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.weight(1f).padding(start = 48.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(start = 48.dp),
                                     textAlign = TextAlign.Center,
                                     color = Color(0xFFFF8A81)
                                 )
@@ -228,15 +206,100 @@ fun NoiseFilteringScreen(
                                 )
                             }
 
-
                             Spacer(modifier = Modifier.height(8.dp))
 
+                            // Noise Addition Section
                             if (isSwitchChecked) {
-
-                                // Switch açıkken gösterilecek alternatif işlem adımları
+                                // Noise Types Row
                                 LazyRow(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Butonlar arasında boşluk eklemek için
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(filterTypes) { filterType ->
+                                        Button(
+                                            onClick = { selectedFilterType = filterType },
+                                            colors = ButtonDefaults.buttonColors(
+                                                backgroundColor = if (selectedFilterType == filterType)
+                                                    Color(0xFFBBE1FF) else Color.LightGray
+                                            ),
+                                            modifier = Modifier.padding(4.dp)
+                                        ) {
+                                            Text(filterType)
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Noise Level Slider
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp, bottom = 15.dp, top = 15.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text("Noise Level: ${(noiseLevel * 10).toInt()}%")
+
+
+                                    LineSlider(
+                                        value = noiseLevel,
+                                        onValueChange = {
+                                            noiseLevel = String.format("%.2f", it).toFloat()
+                                        },
+                                        modifier = Modifier
+
+                                            .widthIn(max = 400.dp),
+                                        steps = 20,
+                                        thumbDisplay = { ( it*10 ).toInt().toString()}
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Apply Noise Button
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            if (selectedImageUri != null) {
+                                                val bitmap = MediaStore.Images.Media.getBitmap(
+                                                    context.contentResolver,
+                                                    selectedImageUri
+                                                )
+                                                Log.d("NOISE LEVEL","$noiseLevel")
+                                                transformedImageBitmap = when (selectedFilterType) {
+                                                    "Salt Noise" -> noiseAddtionAndRemovingViewModel.addSaltNoise(bitmap, noiseLevel.toDouble()*10)
+                                                    "Pepper Noise" -> noiseAddtionAndRemovingViewModel.addPepperNoise(bitmap, noiseLevel.toDouble()*10)
+                                                    "Gaussian Noise" -> noiseAddtionAndRemovingViewModel.addGaussianNoise(bitmap, noiseLevel.toDouble()*10)
+                                                    "Uniform Noise" -> noiseAddtionAndRemovingViewModel.addUniformNoise(bitmap, noiseLevel.toDouble()*10)
+                                                    else -> bitmap
+                                                }
+
+                                                Toast.makeText(
+                                                    context,
+                                                    "$selectedFilterType applied",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Please select an image first",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(0xFFD5FFEC)
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Apply Noise")
+                                }
+                            }
+                            // Noise Removal Section
+                            else {
+                                // Noise Removal Types Row
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     items(filterTypes2) { filterType ->
                                         Button(
@@ -254,68 +317,39 @@ fun NoiseFilteringScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-
-
-
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
                                             if (selectedImageUri != null) {
-                                                val bitmap = MediaStore.Images.Media.getBitmap(
-                                                    context.contentResolver,
-                                                    selectedImageUri
-                                                )
+                                                if (selectedFilterType2 == "Motion Deblurring") {
+                                                    // Show a toast message for Motion Deblurring
+                                                    Toast.makeText(
+                                                        context,
+                                                        "BENDEN NE KÖY OLUR NE DE KASABA ",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else {
+                                                    // Process other filters
+                                                    val bitmap = MediaStore.Images.Media.getBitmap(
+                                                        context.contentResolver,
+                                                        selectedImageUri
+                                                    )
 
-                                                transformedImageBitmap =
-                                                    when (selectedFilterType2) {
-                                                        "Min" -> noiseFilteringViewModel.applyMinFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Max" -> noiseFilteringViewModel.applyMaxFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Average" -> noiseFilteringViewModel.applyAverageFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Median" -> noiseFilteringViewModel.applyMedianFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Laplacian" -> noiseFilteringViewModel.applyLaplacianFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Sobel Gradient" -> noiseFilteringViewModel.applySobelGradientFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Smoothing" -> noiseFilteringViewModel.applySmoothingFilter(
-                                                            bitmap
-                                                        )
-
-                                                        "Masking" -> noiseFilteringViewModel.applyMasking(
-                                                            bitmap
-                                                        )
-
-                                                        "Sharpening" -> noiseFilteringViewModel.applySharpening(
-                                                            bitmap
-                                                        )
-
-                                                        "Power-Law" -> noiseFilteringViewModel.applyPowerLawTransformation(
-                                                            bitmap
-                                                        )
-
-                                                        else -> bitmap // Varsayılan durum
+                                                    transformedImageBitmap = when (selectedFilterType2) {
+                                                        "Median Filter" -> noiseAddtionAndRemovingViewModel.applyMedianFilter(bitmap)
+                                                        "Gaussian Filter" -> noiseAddtionAndRemovingViewModel.applyGaussianFilter(bitmap)
+                                                        "Min Filter" -> noiseAddtionAndRemovingViewModel.applyMinFilter(bitmap)
+                                                        "Max Filter" -> noiseAddtionAndRemovingViewModel.applyMaxFilter(bitmap)
+                                                        "Average Filter" -> noiseAddtionAndRemovingViewModel.applyAverageFilter(bitmap)
+                                                        else -> bitmap
                                                     }
 
-                                                Toast.makeText(
-                                                    context,
-                                                    "$selectedFilterType2 filter applied",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                    Toast.makeText(
+                                                        context,
+                                                        "$selectedFilterType2 applied",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
                                             } else {
                                                 Toast.makeText(
                                                     context,
@@ -326,72 +360,13 @@ fun NoiseFilteringScreen(
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color(
-                                            0xFFD5FFEC
-                                        )
+                                        backgroundColor = Color(0xFFD5FFEC)
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text("Apply Filter")
                                 }
-                            } else {
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
-                                ) {
-                                    filterTypes.forEach { filterType ->
-                                        Button(
-                                            onClick = { selectedFilterType = filterType },
-                                            colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = if (selectedFilterType == filterType)
-                                                    Color(0xFFBBE1FF) else Color.LightGray
-                                            ),
-                                            modifier = Modifier.padding(4.dp)
-                                        ) {
-                                            Text(filterType)
-                                        }
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            if (selectedImageUri != null) {
-                                                val bitmap = MediaStore.Images.Media.getBitmap(
-                                                    context.contentResolver,
-                                                    selectedImageUri
-                                                )
-                                                transformedImageBitmap =
-                                                    noiseFilteringViewModel.applyNoiseFilter(
-                                                        bitmap,
-                                                        selectedFilterType
-                                                    )
-                                                Toast.makeText(
-                                                    context,
-                                                    "$selectedFilterType filter applied",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Please select an image first",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color(
-                                            0xFFD5FFEC
-                                        )
-                                    ),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Apply Filter")
-                                }
                             }
                         }
                     }
@@ -402,5 +377,3 @@ fun NoiseFilteringScreen(
         }
     }
 }
-
-

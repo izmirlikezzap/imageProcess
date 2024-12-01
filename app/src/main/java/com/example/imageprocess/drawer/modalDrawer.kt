@@ -92,18 +92,31 @@ fun ModalDrawerHomeScreen(
             }
 
 
-            OneDrawe("Llama AI", R.drawable.icon_llama_ai) {
+            OneDrawe("Image Filtering & Transform", R.drawable.icon_fourier) {
                 coroutineScope.launch {
                     drawerState.close()
-                    navController.navigate("")
+                    navController.navigate("filterAndTransformScreen")
+                }
+            }
+
+
+            OneDrawe("Noise Addition & Removing", R.drawable.icon_image_noise_addition_removing) {
+                coroutineScope.launch {
+                    drawerState.close()
+                    navController.navigate("noiseAdditionRemoving")
+                }
+            }
+
+
+            OneDrawe("Image Restoration & Construction", R.drawable.icon_image_restoration) {
+                coroutineScope.launch {
+                    drawerState.close()
+                    navController.navigate("imageRestorationConstruction")
                 }
             }
 
 
 
-
-
-            OneDrawe("information", R.drawable.icon_information)
 
 
             Spacer(modifier = Modifier.weight(1f))

@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.imageprocess"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -46,7 +46,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
     packaging {
         resources {
@@ -62,7 +62,8 @@ dependencies {
     implementation("androidx.compose.material:material:1.6.8")
     implementation("androidx.compose.ui:ui-tooling-preview:1.6.8")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
     implementation("androidx.activity:activity-compose:1.9.0")
@@ -70,11 +71,17 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-
+    implementation("com.google.firebase:firebase-database:21.0.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
     implementation("androidx.room:room-common:2.6.1")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
-//    implementation("ir.mahozad.multiplatform:wavy-slider:2.0.0-alpha")
+    implementation("ir.mahozad.multiplatform:wavy-slider:2.0.0-alpha")
+    implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
+
+    //fitness
+    implementation("com.google.android.gms:play-services-fitness:20.0.0")
+    implementation ("com.google.android.gms:play-services-auth:20.6.0")
 
 
     //hilt
@@ -90,13 +97,15 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
+    implementation("androidx.cardview:cardview:1.0.0")
+
     //POI
 //    implementation("org.apache.poi:poi:5.2.3")
 //    implementation("org.apache.poi:poi-ooxml:5.2.3")
 
     // Diğer bağımlılıklar
     implementation ("com.opencsv:opencsv:5.5.2")
-//    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.paging:paging-compose:3.3.0")

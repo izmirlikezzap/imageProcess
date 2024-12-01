@@ -176,7 +176,7 @@ fun HomeScreen(
                     item{
                         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(0.5f),
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 CustomCard(
@@ -186,6 +186,44 @@ fun HomeScreen(
                                     borderColor = Color(0xFFFF9800),
                                     modifier = Modifier.weight(0.5f),
                                     callBack = { navController.navigate("histogramOperationsScreen") }
+                                )
+                                CustomCard(
+                                    title = "Image Filtering",
+                                    description = "Image filtering techniques on frequency domain.",
+                                    image = R.drawable.icon_fourier,
+                                    borderColor = Color(0xFF00ADFF),
+                                    modifier = Modifier.weight(0.5f),
+                                    callBack = { navController.navigate("filterAndTransformScreen") }
+                                )
+
+
+                            }
+                        }
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(25.dp))
+                    }
+                    item{
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                CustomCard(
+                                    title = "Noise Addition & Removing",
+                                    description = "Apply noise and removing techniques.",
+                                    image = R.drawable.icon_image_noise_addition_removing,
+                                    borderColor = Color(0xFFFFE300),
+                                    modifier = Modifier.weight(0.5f),
+                                    callBack = { navController.navigate("noiseAdditionRemoving") }
+                                )
+                                CustomCard(
+                                    title = "Image Restoration & Construction",
+                                    description = "Apply restoration and construction techniques.",
+                                    image = R.drawable.icon_image_restoration,
+                                    borderColor = Color(0xFF71FFF1),
+                                    modifier = Modifier.weight(0.5f),
+                                    callBack = { navController.navigate("imageRestorationConstruction") }
                                 )
 
 
@@ -249,7 +287,7 @@ fun CustomCard(
         elevation = 4.dp
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 10.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -66,7 +66,6 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.ui.input.pointer.pointerInput
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ColorConversionScreen(
