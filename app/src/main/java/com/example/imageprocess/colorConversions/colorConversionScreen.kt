@@ -89,7 +89,7 @@ fun ColorConversionScreen(
 
     // Dropdown seçimleri için durumlar
     var selectedOperation by remember { mutableStateOf(operations[2]) }
-    var fromColorSpace by remember { mutableStateOf("RGB") }
+    val fromColorSpace by remember { mutableStateOf("RGB") }
     var toColorSpace by remember { mutableStateOf(colorSpaces[0]) }
 
     // Dönüştürme işlemi için ViewModel çağrısı

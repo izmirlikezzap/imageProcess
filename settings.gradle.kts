@@ -19,3 +19,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Image Process"
 include(":app")
+include(":sdk")
+
+include(":opencv")

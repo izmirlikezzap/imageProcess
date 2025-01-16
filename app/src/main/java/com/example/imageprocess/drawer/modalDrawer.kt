@@ -64,12 +64,6 @@ fun ModalDrawerHomeScreen(
             Spacer(modifier = Modifier.height(5.dp))
             ProfilePersonalInfoStatic()
 
-            OneDrawe("Profile", R.drawable.icon_profile_screen) {
-                coroutineScope.launch {
-                    drawerState.close()
-                    navController.navigate("")
-                }
-            }
 
             OneDrawe("Color Conversions", R.drawable.icon_color_conversion) {
                 coroutineScope.launch {
@@ -108,10 +102,10 @@ fun ModalDrawerHomeScreen(
             }
 
 
-            OneDrawe("Image Restoration & Construction", R.drawable.icon_image_restoration) {
+            OneDrawe("Image Restoration", R.drawable.icon_image_restoration) {
                 coroutineScope.launch {
                     drawerState.close()
-                    navController.navigate("imageRestorationConstruction")
+                    navController.navigate("imageRestorationScreen")
                 }
             }
 
@@ -138,8 +132,8 @@ fun OneDrawe(singleText: String, int: Int, onClick: () -> Unit = {}) {
     ) {
         val maxWidth = maxWidth
         val textSize = when {
-            maxWidth < 200.dp -> 14.sp
-            maxWidth < 300.dp -> 16.sp
+            maxWidth < 200.dp -> 12.sp
+            maxWidth < 300.dp -> 14.sp
             else -> 20.sp
         }
         val iconSize = when {

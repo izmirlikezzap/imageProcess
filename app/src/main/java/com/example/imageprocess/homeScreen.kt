@@ -51,8 +51,7 @@ import com.example.imageprocess.drawer.ModalDrawerHomeScreen
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -223,9 +222,31 @@ fun HomeScreen(
                                     image = R.drawable.icon_image_restoration,
                                     borderColor = Color(0xFF71FFF1),
                                     modifier = Modifier.weight(0.5f),
-                                    callBack = { navController.navigate("imageRestorationConstruction") }
+                                    callBack = { navController.navigate("imageRestorationScreen") }
                                 )
 
+
+                            }
+                        }
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(25.dp))
+                    }
+
+                    item{
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                CustomCard(
+                                    title = "Morphological Image Transform",
+                                    description = "Apply image transform method to images.",
+                                    image = R.drawable.icon_fingerprint,
+                                    borderColor = Color(0xFFFFE300),
+                                    modifier = Modifier.weight(0.5f),
+                                    callBack = { navController.navigate("morpholohicalTransform") }
+                                )
 
                             }
                         }

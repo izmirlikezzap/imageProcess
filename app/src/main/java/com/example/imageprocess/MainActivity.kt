@@ -1,10 +1,9 @@
 package com.example.imageprocess
 
-import android.os.Build
+import ImageRestorationViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -18,6 +17,9 @@ import com.example.imageprocess.colorConversions.ImageTransformingScreen
 import com.example.imageprocess.histogram.HistogramOperationsScreen
 import com.example.imageprocess.filterAndTransform.FilterAndTransformScreen
 import com.example.imageprocess.filterAndTransform.ImageTransformViewModel
+import com.example.imageprocess.imageRestoration.ImageRestorationScreen
+import com.example.imageprocess.morphologicalTransform.MorphologicalTransformScreen
+import com.example.imageprocess.morphologicalTransform.MorphologicalTransformViewModel
 import com.example.imageprocess.noiseAdditionAndRemoving.NoiseAdditionAndRemoving
 import com.example.imageprocess.noiseAdditionAndRemoving.NoiseAddtionAndRemovingViewModel
 import com.example.imageprocess.noiseFiltering.NoiseFilteringScreen
@@ -45,6 +47,9 @@ fun MyApp(
     val imageProcessViewModel: ImageProcessViewModel = viewModel()
     val imageTransformViewModel : ImageTransformViewModel = viewModel()
     val noiseAddtionAndRemovingViewModel : NoiseAddtionAndRemovingViewModel = viewModel()
+    val imageRestorationViewModel : ImageRestorationViewModel = viewModel()
+    val morphologicalTransformViewModel : MorphologicalTransformViewModel = viewModel()
+
 
 
     NavHost(navController, startDestination = "homeScreen") {
@@ -63,6 +68,9 @@ fun MyApp(
             composable("colorConversionScreen"){
                 ColorConversionScreen(navController = navController, coroutineScope = coroutineScope, drawerState = drawerState,  imageProcessViewModel = imageProcessViewModel)
             }
+
+
+
             composable("filterAndTransformScreen"){
                 FilterAndTransformScreen(navController = navController, coroutineScope = coroutineScope, drawerState = drawerState,  imageTransformViewModel = imageTransformViewModel)
             }
@@ -76,6 +84,18 @@ fun MyApp(
             composable("imageRestorationConstruction"){
                 NoiseFilteringScreen(navController = navController, coroutineScope = coroutineScope, drawerState = drawerState,  imageProcessViewModel = imageProcessViewModel)
             }
+
+            composable("imageRestorationScreen"){
+                ImageRestorationScreen(navController = navController, coroutineScope = coroutineScope, drawerState = drawerState,  imageRestorationViewModel = imageRestorationViewModel)
+            }
+
+            composable("morpholohicalTransform"){
+                MorphologicalTransformScreen(navController = navController, coroutineScope = coroutineScope, drawerState = drawerState,  morphologicalTransformViewModel = morphologicalTransformViewModel)
+            }
+
+
+
+
         }
     }
 }
